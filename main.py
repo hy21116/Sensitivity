@@ -19,7 +19,7 @@ valid_loader = DataLoader(valid_set, batch_size=1, shuffle=False)
 det_file = os.path.join(valid_save_dir, 'detections.pkl')
 
 all_boxes = [[[] for _ in range(valid_set.__len__())] for _ in range(81)]
-for sample in valid_loader:
+for n, sample in enumerate(valid_loader):
     images = list(sample['image'])
     targets = sample['target']
     index = sample['index'].item()
@@ -30,6 +30,7 @@ for sample in valid_loader:
         dets = torch.cat([pred[0]['boxes'], torch.unsqueeze(pred[0]['scores'], dim=1)], dim=1)
         cls = valid_set.coco_cat_idx_to_class_idx[pred[0]['labels'][i].item()]
         all_boxes[cls][index] = dets
+    print('{}_image_finished'.format(n))
 
 with open(det_file, 'wb') as f:
     pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
